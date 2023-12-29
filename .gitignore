@@ -1,0 +1,6 @@
+Audenv/
+AudSculpt/Aud_app/migrations
+AudSculpt/tailwind_audsculpt/static_src/node_modules
+AudSculpt/media/media/*
+# Created by https://www.gitignore.io
+
