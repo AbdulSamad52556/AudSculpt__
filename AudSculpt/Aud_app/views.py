@@ -1479,7 +1479,10 @@ def export_to_excel(request):
 
 def my_wallet(request):
     if request.user.is_authenticated:
-        wallet = wallet_user.objects.get(user=request.user)
+        try:
+            wallet = wallet_user.objects.get(user=request.user)
+        except wallet_user.DoesNotExist:
+            wallet = None
         history = WalletHistory.objects.filter(user=request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}
