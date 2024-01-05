@@ -1492,10 +1492,7 @@ def my_wallet(request):
             wallet = wallet_user.objects.get(user=request.user)
         except wallet_user.DoesNotExist:
             wallet = None
-<<<<<<< HEAD
-        
-=======
->>>>>>> 76fed7d35ce4790fe28371a64d801e8c61349457
+            
         history = WalletHistory.objects.filter(user=request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}
