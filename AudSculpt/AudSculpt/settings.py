@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--qotn*vix*5g46#9bql1cxw*&ey-9w+%*x6attzr86%=(zc1kg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['52.66.250.234','www.audsculpt.shop','audsculpt.shop']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Aud_app',
     'tailwind',
+    'theme',
     'tailwind_audsculpt',
     'django_browser_reload',
     
@@ -122,8 +123,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'static')
+    os.path.join(BASE_DIR, 'static'),
 ]
+
 
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
@@ -135,12 +137,16 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TAILWIND_APP_NAME = 'tailwind_audsculpt'
+TAILWIND_APP_NAME = 'theme'
 
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+# settings.py
+NPM_BIN_PATH = "/usr/bin/npm"
+
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
