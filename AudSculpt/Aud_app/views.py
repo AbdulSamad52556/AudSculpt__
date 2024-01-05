@@ -99,7 +99,7 @@ def signup(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-<<<<<<< HEAD
+
         auth_user = CustomUser.objects.filter(username = username).exists()
         auth_email = CustomUser.objects.filter(email = email).exists()
 
@@ -108,13 +108,13 @@ def signup(request):
             return render(request,'signup.html',{'user_err':user_err})
         elif auth_email:
             user_err = 'email already used'
-=======
+
         auth_user = CustomUser.objects.filter(username = username , email = email).exists()
         auth_email = CustomUser.objects.filter(email = email).exists()
 
         if auth_user:
             user_err = 'Username already used...!'
->>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213
+
             return render(request,'signup.html',{'user_err':user_err})
         elif auth_email:
             user_err = 'email already used...!'
@@ -1501,13 +1501,6 @@ def my_wallet(request):
             wallet = wallet_user.objects.get(user=request.user)
         except wallet_user.DoesNotExist:
             wallet = None
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-            
-=======
->>>>>>> 76fed7d35ce4790fe28371a64d801e8c61349457
->>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213
         history = WalletHistory.objects.filter(user=request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}

@@ -1,0 +1,91 @@
+[33mcommit 91ed223cad5784d57df292b72ee5a8e4c6b944bf[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Merge: a20b079 e4ef44a
+Author: root <root@ip-172-31-11-126.ap-south-1.compute.internal>
+Date:   Fri Jan 5 09:34:07 2024 +0000
+
+    commit from aws
+
+[33mcommit a20b0796aff9a92517eb5798fc111c22d74cb053[m
+Author: root <root@ip-172-31-11-126.ap-south-1.compute.internal>
+Date:   Fri Jan 5 09:31:38 2024 +0000
+
+    pull from aws
+
+[33mcommit 381afd1944fb227e92a2d421ecedaae6a1cb5a40[m
+Author: Ubuntu <ubuntu@ip-172-31-11-126.ap-south-1.compute.internal>
+Date:   Fri Jan 5 09:25:57 2024 +0000
+
+    pull from aws
+
+[33mcommit e4ef44aeadf06a565917ca67293fbe3503a1c213[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 2848b66 76fed7d
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Jan 5 12:23:28 2024 +0530
+
+    Merge remote changes into main
+
+[33mcommit 2848b66170f79057acdb0d51ecae0d9df5befdb3[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Jan 5 12:21:05 2024 +0530
+
+    'hello'
+
+[33mcommit f840b95d5ff821da87409d6f3e5cba2d43493839[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Jan 5 12:18:53 2024 +0530
+
+    hello,
+
+[33mcommit a8d7d05a8f863dc2938c2dfdf4e1b84fd2e4d660[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Jan 5 11:56:11 2024 +0530
+
+    committing
+
+[33mcommit 76fed7d35ce4790fe28371a64d801e8c61349457[m
+Author: AbdulSamad52556 <110331417+AbdulSamad52556@users.noreply.github.com>
+Date:   Tue Jan 2 15:32:02 2024 +0530
+
+    Update settings.py
+
+[33mcommit ae927c47f1cc905c1188a3aa1978a55d27d7e0b0[m
+Author: AbdulSamad52556 <110331417+AbdulSamad52556@users.noreply.github.com>
+Date:   Tue Jan 2 14:48:02 2024 +0530
+
+    Update home.html
+
+[33mcommit e2d52feb106cd3edf6b7550d3b893eac4ccd064d[m
+Author: AbdulSamad52556 <110331417+AbdulSamad52556@users.noreply.github.com>
+Date:   Tue Jan 2 14:19:45 2024 +0530
+
+    Update my_wallet.html
+
+[33mcommit 52433200754a0e039cf86e8d7cc4ec8e981e29fa[m
+Author: AbdulSamad52556 <110331417+AbdulSamad52556@users.noreply.github.com>
+Date:   Tue Jan 2 14:18:20 2024 +0530
+
+    Update views.py
+
+[33mcommit 5a9b1e2a52119d6fd7347cc783393f382d8fbc6d[m
+Author: AbdulSamad52556 <110331417+AbdulSamad52556@users.noreply.github.com>
+Date:   Fri Dec 29 15:23:22 2023 +0530
+
+    Create media
+
+[33mcommit 9ffa7ff80f3ae3656b5be10f4f8963a5e197acc0[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Dec 29 11:45:50 2023 +0530
+
+    deleted
+
+[33mcommit 763bec67a5fe367adc6e637ca6e600f74f33e4ce[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Dec 29 11:31:47 2023 +0530
+
+    second init
+
+[33mcommit 056a9e1dce7c0a7f960f3c995d1121360da738fe[m
+Author: Abdul Samad <abdulsamad52556@gmail.com>
+Date:   Fri Dec 29 11:21:42 2023 +0530
+
+    initial commit
