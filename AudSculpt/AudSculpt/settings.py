@@ -91,8 +91,6 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -112,9 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'Aud_app.CustomUser'
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/4.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -130,22 +125,13 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static')
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR,'all_static')
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = 'static/'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TAILWIND_APP_NAME = 'tailwind_audsculpt'
@@ -153,7 +139,7 @@ TAILWIND_APP_NAME = 'tailwind_audsculpt'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
-# settings.py
+
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
 
 EMAIL_HOST = 'smtp.gmail.com'
