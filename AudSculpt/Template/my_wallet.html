@@ -44,8 +44,7 @@
 
       <div>
         <h2 class="text-xl font-semibold mb-2 py-2">Wallet Information</h2>
-        <p>Balance: ₹ {{ wallet.amount }}</p>
-        <p>Payment Type: {{ wallet.payment_type }}</p>
+        <p>Balance: ₹ {% if wallet %} {{ wallet.amount }} {% else %} 0 {% endif %}</p>
       </div>
     </div>
 
