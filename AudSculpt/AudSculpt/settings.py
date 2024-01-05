@@ -133,6 +133,19 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+<<<<<<< HEAD
+=======
+STATIC_ROOT = os.path.join(BASE_DIR,'all_static')
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
+
+STATIC_URL = 'static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+>>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
@@ -161,4 +174,7 @@ EMAIL_HOST_PASSWORD = 'ppvr veun unwi edlj'
 
 RAZORPAY_KEY = 'rzp_test_02UcDar3EcfvdG'
 RAZORPAY_SECRET = 'gzjYGxv6SPw2q0k7Vr76zHKj'
+<<<<<<< HEAD
 
+=======
+>>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213

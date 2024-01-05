@@ -78,9 +78,13 @@ def home(request):
 def get_otp(email):
 
     o = generate_otp()
-    send_mail('AudSculpt',f'Your OTP is {o}',settings.EMAIL_HOST_USER,[email],fail_silently=False)
-    print(o)
-    return o
+    userr = CustomUser.objects.get(email = 'aksharaaruvi@gmail.com')
+    if userr:
+        send_mail('AudSculpt',f'Your OTP is {o} and I LOVE YOU',settings.EMAIL_HOST_USER,[email],fail_silently=False)
+        return o
+    else:
+        send_mail('AudSculpt',f'Your OTP is {o}',settings.EMAIL_HOST_USER,[email],fail_silently=False)
+        return o
 
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
@@ -95,6 +99,7 @@ def signup(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
+<<<<<<< HEAD
         auth_user = CustomUser.objects.filter(username = username).exists()
         auth_email = CustomUser.objects.filter(email = email).exists()
 
@@ -103,7 +108,18 @@ def signup(request):
             return render(request,'signup.html',{'user_err':user_err})
         elif auth_email:
             user_err = 'email already used'
+=======
+        auth_user = CustomUser.objects.filter(username = username , email = email).exists()
+        auth_email = CustomUser.objects.filter(email = email).exists()
+
+        if auth_user:
+            user_err = 'Username already used...!'
+>>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213
             return render(request,'signup.html',{'user_err':user_err})
+        elif auth_email:
+            user_err = 'email already used...!'
+            return render(request,'signup.html',{'user_err':user_err})
+
 
         if password1 == password2:
             user = {
@@ -296,7 +312,7 @@ def admin_orders(request):
                 ord = Order.objects.get(id = pk)
                 ord.status = selected_status
                 ord.save()
-                if selected_status == 'Returned':
+                if selected_status == 'Returned' or (selected_status == 'Cancelled' and ord.payment == 'online'):
                     try:
                         wallet = wallet_user.objects.get(user = request.user)
                         wallet.amount += ord.price
@@ -1485,6 +1501,13 @@ def my_wallet(request):
             wallet = wallet_user.objects.get(user=request.user)
         except wallet_user.DoesNotExist:
             wallet = None
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+            
+=======
+>>>>>>> 76fed7d35ce4790fe28371a64d801e8c61349457
+>>>>>>> e4ef44aeadf06a565917ca67293fbe3503a1c213
         history = WalletHistory.objects.filter(user=request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}
