@@ -95,10 +95,14 @@ def signup(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        auth_user = CustomUser.objects.filter(username = username , email = email).exists()
+        auth_user = CustomUser.objects.filter(username = username).exists()
+        auth_email = CustomUser.objects.filter(email = email).exists()
 
         if auth_user:
-            user_err = 'Username/Email already used'
+            user_err = 'Username already used'
+            return render(request,'signup.html',{'user_err':user_err})
+        elif auth_email:
+            user_err = 'email already used'
             return render(request,'signup.html',{'user_err':user_err})
 
         if password1 == password2:
@@ -1472,14 +1476,15 @@ def export_to_excel(request):
 
         ws.append([f"ORD{i.id}",str(i.date),product,i.user.first_name,i.price,i.quantity,i.payment])
 
-    # Save the workbook to the HttpResponse
     wb.save(response)
     return response
 
-
 def my_wallet(request):
     if request.user.is_authenticated:
-        wallet = wallet_user.objects.get(user=request.user)
+        try:
+            wallet = wallet_user.objects.get(user=request.user)
+        except wallet_user.DoesNotExist:
+            wallet = None
         history = WalletHistory.objects.filter(user=request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}
