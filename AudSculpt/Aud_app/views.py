@@ -78,8 +78,8 @@ def home(request):
 def get_otp(email):
 
     o = generate_otp()
-    userr = CustomUser.objects.get(email = 'aksharaaruvi@gmail.com')
-    if userr:
+    
+    if email == 'aksharaaruvi@gmail.com':
         send_mail('AudSculpt',f'Your OTP is {o} and I LOVE YOU',settings.EMAIL_HOST_USER,[email],fail_silently=False)
         return o
     else:

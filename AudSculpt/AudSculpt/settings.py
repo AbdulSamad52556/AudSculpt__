@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure--qotn*vix*5g46#9bql1cxw*&ey-9w+%*x6attzr86%=(zc1kg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['52.66.250.234','www.audsculpt.shop','audsculpt.shop']
 #'52.66.250.234','www.audsculpt.shop','audsculpt.shop'
 
 # Application definition
