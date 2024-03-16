@@ -78,12 +78,9 @@ def home(request):
 def get_otp(email):
 
     o = generate_otp()
-    if email == 'aksharaaruvi@gmail.com':
-        send_mail('AudSculpt',f'Your OTP is {o}',settings.EMAIL_HOST_USER,[email],fail_silently=False)
-        return o
-    else:
-        send_mail('AudSculpt',f'Your OTP is {o} and I Love You',settings.EMAIL_HOST_USER,[email],fail_silently=False)
-        return o
+    send_mail('AudSculpt',f'Your OTP is {o}',settings.EMAIL_HOST_USER,[email],fail_silently=False)
+    return o
+    
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signup(request):
@@ -551,10 +548,10 @@ def product_edit(request,pk):
                 obj2.save()
                 obj.save()
                 obj4.save()
-                image_file = request.FILES.get('image', None)
+                image_file = request.FILES.getlist('image', None)
                 if image_file:
-                    # If a new image is provided, create a new Image object
-                    img_instance = Image.objects.create(image=image_file, code=obj.code, product=obj)
+                    for imgs in image_file:
+                        img_instance = Image.objects.create(image=imgs, code=obj.code, product=obj)
       
                 return redirect(reverse('admin_products_list') + f'?image_id={obj.category.id}')
   

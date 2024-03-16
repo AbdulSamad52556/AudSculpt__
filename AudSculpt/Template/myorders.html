@@ -93,7 +93,8 @@
                                 <a href="#">
                                     <button onclick="cancelOrder(event,{{ order.id }})" data-modal-target="popup-modal" data-modal-toggle="popup-modal"  class="font-bold text-sm h-1/2 m-4 rounded-xl p-3 text-white bg-blue-800">Cancel</button>
                                 </a>
-                            {% elif order.status == 'Delivered' and date_valid %}
+                                {% endif %}
+                            {% if order.status == 'Delivered' and date_valid %}
                             <a href="{% url 'return_order' pk=order.id %}">
                                     <button class="font-bold text-sm h-1/2 m-4 rounded-xl p-3 text-white bg-red-700">Return</button>
                                 </a>
