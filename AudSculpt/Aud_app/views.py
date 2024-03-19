@@ -5,12 +5,10 @@ from django.core.mail import send_mail
 from django.shortcuts import render, redirect
 from django.conf import settings
 import random
-from .models import Category, Product, Image, Address, State, varients, CustomUser,WalletHistory ,cart, UserImage, Order, Coupons,Brands, razor_pay, wallet_user
+from .models import Category, Product, Image, Address, varients, CustomUser,WalletHistory ,cart, UserImage, Order, Coupons,Brands, razor_pay, wallet_user
 from django.urls import reverse
 from django.views.decorators.cache import cache_control
-from django.http import JsonResponse, HttpResponseBadRequest,HttpResponse
-from django.shortcuts import redirect, get_object_or_404
-import json
+from django.http import JsonResponse,HttpResponse
 from decimal import Decimal
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -20,33 +18,25 @@ from django.core.paginator import Paginator
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 from datetime import date, timedelta
-from django.db.models import Max, F, Min
+from django.db.models import Max, Min
 from openpyxl import Workbook
 
 def generate_otp():
     values = '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    
     for i in range(5):
         OTP = ''.join(random.choice(values) for _ in range(5))
     return OTP
 
-
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signin(request):
-
-
     if request.user.is_authenticated:
         if request.user.is_superuser:
             return redirect('admin_home')
         return redirect('home') 
-    
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-
         user = authenticate( request, username = email, password = password)
-
-        
         if user:
             if user.is_superuser:
                 login(request,user)
@@ -54,38 +44,24 @@ def signin(request):
             else:
                 login(request,user)
                 return redirect('home')
-            
-
         user_err = 'Invalid user details'
         return render(request,'logindd.html',{'user_err':user_err})
-    
     return render(request,'logindd.html')
-
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def home(request):
-
     if request.user.is_authenticated:
         user = CustomUser.objects.get(username = request.user.username)
-
-      
         return render(request,'home.html',{'user':user})
-    
     return redirect('signin')
 
-
-
 def get_otp(email):
-
     o = generate_otp()
     send_mail('AudSculpt',f'Your OTP is {o}',settings.EMAIL_HOST_USER,[email],fail_silently=False)
     return o
-    
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signup(request):
-
-    
     if request.method == 'POST':
         firstname = request.POST.get('firstname')
         lastname = request.POST.get('lastname')
@@ -94,7 +70,33 @@ def signup(request):
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
+        if len(firstname) > 15 or len(lastname) > 15 or len(firstname) < 3 or len(lastname) < 3:
+            err = 'name seems Invalid'
+            return render(request,'signup.html',{'name_err':err})
+
+        if len(password1) < 8:
+            err = 'password must have more than 8 characters'
+            return render(request,'signup.html',{"pass_err":err})
+
+        Numeric = False
+        lower_case = False
+        upper_case = False
+        special_case = False
+        special_symbols = set("!@#$%^&*()_}+-=[]{;:'\"\\|,.<>?/~`")
         
+        for i in range(len(password1)):
+            if password1[i].isnumeric():
+                Numeric = True
+            if password1[i].islower():
+                lower_case = True
+            if password1[i].isupper():
+                upper_case = True
+            if password1[i] in special_symbols:
+                special_case = True
+        if not Numeric or not lower_case or not upper_case or not special_case:
+            err = 'Password must include: Lower Case, Upper Case, and Special character'
+            return render(request,'signup.html',{'pass_err':err})
+
         auth_user = CustomUser.objects.filter(username = username).exists()
         auth_email = CustomUser.objects.filter(email = email).exists()
 
@@ -113,18 +115,13 @@ def signup(request):
                 'email' : email,
                 'password':password1
             }           
-            
             request.session['user'] = user
             O = get_otp(email)
             request.session['otp'] = O
-                        
             return redirect('otp_entering')
         err = 'password must be same'
         return render(request,'signup.html',{'pass_err':err})      
-
     return render(request,'signup.html')
-
-
 
 def otp_entering(request):
 
@@ -134,13 +131,8 @@ def otp_entering(request):
     if stored_user is None:
         return redirect('signup')
     
-    
     if request.method == 'POST':
-
-        
         entered_otp = request.POST.get('entered_otp')
-
-
         if str(stored_otp) == str(entered_otp):
             user = CustomUser.objects.create_user(
             first_name = stored_user['first_name'],
@@ -150,15 +142,11 @@ def otp_entering(request):
             password =stored_user['password']
             )
             return redirect('signin')
-    
         otp_err = 'Entered otp is incorrect'
         return render(request, 'otp_entering.html', {'otp_err': otp_err})
-
     return render(request,'otp_entering.html')
 
-
 def otp_sending(request):
-
     if request.method == 'POST':
         email = request.POST.get('email')
         users = CustomUser.objects.filter(email = email).exists()
@@ -172,23 +160,17 @@ def otp_sending(request):
         else:
             err = 'Invalid Email Id'
             return render(request,'otp_sending.html',{'err':err})
-
     return render(request,'otp_sending.html')
 
 def password_update(request):
-
     user_confirm2 = request.session.get('user_confirm')
     email = request.session.get('email_from_otp_sending')
 
-
     if user_confirm2 == 'user_confirmed':
-
         if request.method == 'POST':
             password1 = request.POST.get('password1')
             password2 = request.POST.get('password2')
-
             user = CustomUser.objects.get(email = email)
-
             if user:
                 if password1 == password2:
                     user.set_password(password1)
@@ -196,74 +178,52 @@ def password_update(request):
                     return redirect('signin')
                 err = 'password must be same'
                 return render(request,'change_password',{'err':err})
-
         return render(request,'password_update.html')
     return redirect('otp_entering2')
 
 def otp_entering2(request):
-
     o = request.session.get('otp')
     email = request.session.get('email_from_otp_sending')
     if request.method == 'POST':
-        
         entered_otp = request.POST.get('entered_otp')
-
         if str(entered_otp) == str(o):
             request.session['user_confirm'] = "user_confirmed"
             return redirect('password_update')
         else:
             err = 'Invalid otp'
             return render(request,'otp_entering2.html',{'err':err})
-      
-
     return render(request,'otp_entering2.html')
-
-from django.db.models import Count
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def admin_home(request):
-
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             orders_count_today = Order.get_orders_count_today()
             cancelled_orders_count_today = Order.get_cancelled_orders_count_today()
             monthly_orders_count = Order.get_orders_count_monthly()
             monthly_cancelled_orders_count = Order.get_cancelled_orders_count_monthly()
             user = CustomUser.objects.get(username = request.user.username)
-
-           
             context = {"OCT" : orders_count_today , "COCT" :cancelled_orders_count_today,'monthly_orders_count': monthly_orders_count,
         'monthly_cancelled_orders_count': monthly_cancelled_orders_count,'user':user
     }
-
             return render(request, 'adminhome.html', context)
-               
         return redirect('home')
-
     return redirect('signin')
-
 
 def logg(request):
     return render(request,'login.html')
 
-
 def admin_users(request):
-    
     if request.user.is_authenticated:
         if request.user.is_superuser:
             if request.method == "POST":
                 value = request.POST.get('search')
                 users = CustomUser.objects.filter(first_name__icontains = value ,is_superuser = False)
-
                 return render(request, 'admin_users.html',{'users':users})
-
             users = CustomUser.objects.filter(is_superuser = False)
             return render(request, 'admin_users.html',{'users':users})
         return redirect('signin')
-        
     return redirect('signin')
-
 
 def admin_orders(request):
     if request.user.is_authenticated:
@@ -311,38 +271,29 @@ def admin_orders(request):
                         )
                         obj = WalletHistory(amount=ord.price,transaction_type='credit',user=request.user)
                         obj.save()
-
                 
                 return redirect('admin_orders')
-
-
             return render(request,'admin_orders.html',{'orders':orders})
         return redirect('signin')
     return redirect('signin')
 
-
 def admin_offers(request):
     if request.user.is_authenticated:
         if User.is_superuser:
-            
             categories = Category.objects.filter(unlist = True)
             products = Product.objects.filter(category__unlist = True , unlist = False)
-
             return render(request,'admin_offers.html',{'categories':categories,'products':products})
 
 def admin_offerpage(request):
     if request.user.is_authenticated:
-
         if User.is_superuser:
             pk = request.GET.get('pk')
             obj = None
             obj2 = None
-
             try:
                 obj = Category.objects.get(id = pk)
             except:
                 obj2 = Product.objects.get(id = pk)
-
             if request.method == 'POST':
                 if obj:
                     discount = request.POST.get('discount')
@@ -374,12 +325,9 @@ def admin_offerpage(request):
                             variant.discount_price = None
                             variant.save()
                     return redirect('admin_offers')
-
             return render(request,'admin_offerpage.html',{'obj':obj,'obj2':obj2})
 
-
 def admin_category(request):
-    
     if request.user.is_authenticated:
         if request.user.is_superuser:
             users = Category.objects.all()      
@@ -391,19 +339,13 @@ def admin_category(request):
                 if not users:
                     err2 = 'This category name is not available'
                 return render(request,'admin_category.html',{'users':users,'err2':err2})
-
-
             elif request.method == 'POST':
-
-                
                 image = request.FILES.get('image')
                 name = request.POST.get('name')
-
                 if image and name:
                     if Category.objects.filter(name = name).exists():
                         err = 'Name Already used...!'
                         return render(request,'admin_category.html',{'users':users,'err':err})
-                
                     else:
                         category = Category.objects.create(
                             image = image,
@@ -411,39 +353,29 @@ def admin_category(request):
                         )
                         category.save()
                         return redirect('admin_category')
-                
             return render(request,'admin_category.html',{'users':users})
-        
         return redirect('signin')
     return redirect('signin')
-    
-    
 
 def admin_products(request):
     
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             if request.method == "POST":
                 value = request.POST.get('search')
                 users = Category.objects.filter(unlist = True , name__icontains = value)
                 return render(request,'admin_products.html',{'users':users})
 
-
             users = Category.objects.filter(unlist = True)
 
-            
             return render(request,'admin_products.html',{'users':users})
         return redirect('signin')
     return redirect('signin')
-    
-    
 
 def admin_products_list(request):
 
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             imageid = request.GET.get('image_id')
             products = Product.objects.filter(category__id=imageid)
             variant = varients.objects.all
@@ -452,7 +384,6 @@ def admin_products_list(request):
                 value = request.POST.get('search')
                 products = Product.objects.filter(name__icontains = value , category__id=imageid)
           
-
             elif request.method == 'POST':
                 name = request.POST.get('name')
                 price = request.POST.get('price')
@@ -464,35 +395,27 @@ def admin_products_list(request):
                 code = request.POST.get('code')
                 color = request.POST.get('color')
                 
-
                 product = Product.objects.create(
                     name = name,
                     description = description,
                     highlights = highlights,
                     code = code,                
                     category_id = imageid
-
                 )
                 product.save()
 
-                
-                
                 brand = Brands.objects.create(
                     name = brand,
                     product = product
                 )
-
-
                 for i in range(len(image1)):
                     image = f'image{i}'
                     if image in request.FILES:
                         image = request.FILES.getlist(image)
-
                         # Process or save each image as needed
                         for img in image:
                             img_instance = Image.objects.create(image=img, code=code, product=product)
                             img_instance.save()
-
                     
                 price = varients.objects.create(
                     price = price,
@@ -503,13 +426,9 @@ def admin_products_list(request):
                 )
                 price.save()
                 return redirect(reverse('admin_products_list') + f'?image_id={request.GET.get("image_id")}')
-          
-                
-            
             return render(request,'admin_products_list.html',{'products':products,'variant':variant})
         return redirect('signin')
     return redirect('signin')
-
 
 def image_delete(request):
     prod = request.GET.get('id')
@@ -517,9 +436,7 @@ def image_delete(request):
     obj.delete()   
     return JsonResponse({'status': 'ok'})
 
-
 def product_edit(request,pk):
-
     if request.user.is_authenticated:
         if request.user.is_superuser:
 
@@ -529,7 +446,6 @@ def product_edit(request,pk):
             obj4 = Brands.objects.get(product = obj)
         
             if request.method == 'POST':
-
                 name = request.POST.get('name')
                 price = request.POST.get('price')
                 image = request.FILES.getlist('image')
@@ -554,17 +470,13 @@ def product_edit(request,pk):
                         img_instance = Image.objects.create(image=imgs, code=obj.code, product=obj)
       
                 return redirect(reverse('admin_products_list') + f'?image_id={obj.category.id}')
-  
             return render(request,'product_edit.html',{'prod':obj,'img':obj3})
         return redirect('signin')
-
     return redirect('signin')
-
 
 def unlist_product(request,pk):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             obj = Product.objects.get(id=pk)
             if obj.unlist:
                 obj.unlist = False
@@ -576,18 +488,13 @@ def unlist_product(request,pk):
         return redirect('signin')
     return redirect('signin')
 
-
-
 def products(request):
-
     if request.user.is_authenticated:
 
         Cart = cart.objects.filter(user = request.user).values_list("product",flat = True)
 
         err = None
         obj = None
-
-        
 
         sort = request.GET.get('pk')
         if sort:
@@ -631,9 +538,7 @@ def products(request):
         page_number = request.GET.get("page")
         page_obj = paginator.get_page(page_number)
         return render(request,'product.html',{'product':page_obj,'cart':Cart,'err':err})
-        
     return redirect('signin')
-
 
 def increment_count(request):
     if request.user.is_authenticated:
@@ -683,7 +588,6 @@ def Cart(request):
         except Address.DoesNotExist:
             address = None
 
-
         total = 0
         quant = 0
         subtotal = 0
@@ -700,13 +604,11 @@ def Cart(request):
                     subtotal = total+40
                     cart_price = total / Cart.quantity
                     saved += totu-total
-
                 else:
                     total += variants.price*Cart.quantity
                     quant += Cart.quantity
                     subtotal = total+40
                     cart_price = total / Cart.quantity
-            
 
         coupon_error = 0
         coup = None
@@ -720,7 +622,6 @@ def Cart(request):
                 if Order.objects.filter(coupon_code = coup.code , user = request.user).exists():
                     coupon_error = "you have already applied this coupon ..."
                     coup  = None
-
             except Coupons.DoesNotExist:
                 coupon_error = "you have entered the wrong coupon .."
                 coup = None
@@ -734,12 +635,9 @@ def Cart(request):
                         coupon_applied = coupon
                         coup.save()
                         disc_price = coup.discount_price
-
-                        
                     else:
                         coupon_error = "coupon has reached maximum number.."
                         coup = None
-                
         if coup:    
             request.session['coupon'] = int(coup.id)
             request.session['disc_price'] = disc_price
@@ -754,11 +652,9 @@ def Cart(request):
 
         if err:
             return render(request,'cart.html',{'cart':cart_items,'saved':saved,'cart_price':cart_price,'disc_price':disc_price,'err':err ,'user':user,'total':total,'quant':quant,'address':address,'subtotal':subtotal,'coupon':coupons,'today':today ,'coupon_applied':coupon_applied , 'coupon_error' : coupon_error})        
-
         else:
             return render(request,'cart.html',{'cart':cart_items,'saved':saved ,'cart_price':cart_price,'disc_price':disc_price,'user':user,'total':total,'quant':quant,'address':address,'subtotal':subtotal,'coupon':coupons ,'coupon_applied':coupon_applied ,'today':today ,'coupon_error' : coupon_error})        
     return redirect('signin')
-    
     
 def add_to_cart(request):
 
@@ -770,9 +666,7 @@ def add_to_cart(request):
         product = obj2.product
     )
     Cart.save()
-
     return JsonResponse({'status': 'ok'})
-
 
 def add_to_cart2(request):
 
@@ -785,16 +679,13 @@ def add_to_cart2(request):
         product = obj2.product
     )
     Cart.save()
-
     return redirect(reverse('item_page',kwargs={'pk': obj}))
    
-
 def cart_delete(request):
     prod = request.GET.get('pk')
     obj = cart.objects.get(id = prod)
     obj.delete()   
     return JsonResponse({'status': 'ok'})
-
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def signout(request):
@@ -802,7 +693,6 @@ def signout(request):
         return redirect('signin')
     logout(request)
     return JsonResponse({'status': 'ok'})
-
 
 def user_block(request,pk):
 
@@ -813,7 +703,6 @@ def user_block(request,pk):
         return redirect('admin_users')
     except CustomUser.DoesNotExist:
         return redirect('admin_users')
-    
 
 def user_unblock(request,pk):
 
@@ -825,21 +714,16 @@ def user_unblock(request,pk):
     except CustomUser.DoesNotExist:
         return redirect('admin_users')
     
-
 def item_page(request,pk):
 
     if request.user.is_authenticated:
         Cart = cart.objects.all().values_list("product",flat = True)
-       
         obj2 = Product.objects.get(id = pk)
         obj = Image.objects.filter(product = obj2)
         obj3 = varients.objects.get(product_id = obj2.id)
         colors = varients.objects.filter(code = obj2.code)
         return render(request,'item_page.html',{'img':obj,'product':obj2,'varients':obj3,'colors':colors,'cart':Cart})
-    
     return redirect('signin')
-
-
 
 def admin_category_edit(request,pk):
     if request.user.is_authenticated:
@@ -853,14 +737,12 @@ def admin_category_edit(request,pk):
 
                 cate.name = name
                 cate.image = image
-
                 cate.save()
-                return redirect('admin_category')
 
+                return redirect('admin_category')
             return render(request,'admin_category_edit.html',{'cate':cate})
         return redirect('signin')
     return redirect('signin')
-
 
 def makeUnlist(request,pk):
     if request.user.is_authenticated:
@@ -924,7 +806,6 @@ def edit_profile(request):
         else:
             a = reverse('user_profile')
 
-
         if request.method == "POST":
             firstname = request.POST.get('firstname')
             lastname = request.POST.get('lastname')
@@ -946,15 +827,11 @@ def edit_profile(request):
             obj.gender = gender
             obj.phone = phone
             obj.altphone = altphone
-            
             obj.save()
-
 
             img.image = image
             img.save()
             
-
-
             return redirect('user_profile')
 
         return render(request,'edit_profile.html',{'user':obj,'img':img,'a':a,'address1':address})
@@ -967,7 +844,6 @@ def user_address(request,pk):
             obj = Address.objects.get(id=pk)
         except Address.DoesNotExist:
             obj = None
-
 
         err = None
 
@@ -993,14 +869,12 @@ def user_address(request,pk):
                     landmark=landmark,
                     pincode=pincode
                 )
-            
             if len(pincode) == 6 :
                 obj.save()
                 return redirect('user_profile')
             else:
                 err = 'pincode must be valid'
         return render(request,'user_address.html',{'address':obj,'err':err})
-
     return redirect('signin')
 
 def del_address(request,pk):
@@ -1008,6 +882,7 @@ def del_address(request,pk):
         obj = Address.objects.get(id = pk)
         obj.delete()
         return redirect('user_profile')
+    return redirect('signin')
 
 def add_address(request):
     if request.user.is_authenticated:
@@ -1026,11 +901,8 @@ def add_address(request):
                 landmark=landmark,
                 pincode=pincode
             )
-
             obj.save()
-            
             return redirect('user_profile')
-
         return render(request,'add_address.html')
     return redirect('signin')
 
@@ -1054,9 +926,9 @@ def add_address_from_checkout(request):
 
             obj.save()
             return redirect('checkout')
-        
         return render(request,'add_address_from_checkout.html')
-
+    return redirect('signin')
+    
 
 def check(request):
     user = CustomUser.objects.get(id = request.user.id)
@@ -1070,8 +942,9 @@ def check(request):
                 err = 'Quantity not available'
                 request.session['err'] = err
                 return redirect('cart')
+    return redirect('signin')
     
-
+    
 def checkout(request):
     if request.user.is_authenticated:
 
@@ -1104,10 +977,6 @@ def checkout(request):
         if disc_price:
             sub_total = int(total) - int(disc_price)
             del request.session['disc_price']
-
-        
-        
-        
         
         tot_add = Address.objects.filter(user=user)
         tot = 0
@@ -1148,10 +1017,6 @@ def checkout(request):
                     return render(request,'checkout.html',{'user':user,'ad':ad,'address':address,'cart':cart_items,'quant':quant,'total':total,'addresses':addresses , 'order':order,'disc_price':disc_price,'sub_total':sub_total,'wallet':wallet,'wall_err':wall_err})
                 
                 elif payment:        
-
-                    
-
-            
                     order = Order.objects.create(
                         price = sub_total + 40,
                         date = date.today(),
@@ -1178,7 +1043,7 @@ def checkout(request):
                         wallet.amount -= order.price
                         wallet.save()
 
-                        wall_his = WalletHistory(amount=order.price,transaction_type='debit',user=request.user)
+                        wall_his = WalletHistory(amount = order.price,transaction_type = 'debit',user = request.user)
                         wall_his.save()
 
                     products = cart.objects.filter(user = user)
@@ -1192,31 +1057,26 @@ def checkout(request):
                         variants.save()
                         
                     order.save()
-
                     del_cart.delete()
-
 
                     ordered = True
                     request.session['ordered'] = ordered
                     if request.session.get('disc_price',None):
                         del request.session['disc_price']
 
-
                     return redirect('order_confirm')
             else:
                 err = 'please select a payment method'
                 return render(request,'checkout.html',{'user':user,'ad':ad,'address':address,'cart':cart_items,'quant':quant,'total':Decimal(total),'err':err,'order':order,'addresses':addresses,'disc_price':disc_price,'sub_total':sub_total,'wallet':wallet})
         
-
         return render(request,'checkout.html',{'user':user,'ad':ad,'address':address,'cart':cart_items,'quant':quant,'total':total,'addresses':addresses , 'order':order,'disc_price':disc_price,'sub_total':sub_total,'wallet':wallet})
     return redirect('signin')
 
     
 def order_confirm(request):
     if request.user.is_authenticated:
-        
+
         ord = request.session.get('ordered')
-       
 
         if ord:
             return render(request, 'order_confirm.html')
@@ -1232,19 +1092,13 @@ def razor_success(request):
         razorpay_order_id = request.POST.get('razorpay_order_id')
         razorpay_signature = request.POST.get('razorpay_signature')
 
-        print(razorpay_payment_id)
-        print(razorpay_order_id)
-
-        
         razor = razor_pay.objects.create(
             razopay_order_id = razorpay_order_id,
             razopay_payment_id = razorpay_payment_id, 
         )
-
         razor.save()
 
         request.session['razor_id'] = razor.id
-
 
         return JsonResponse({'status': 'success'})
     else:
@@ -1269,21 +1123,15 @@ def myorders(request):
                 if date.today() <= date_limit:
                     date_valid = True
 
-
-
         return render(request, 'myorders.html',{'orders':orders,'date_valid':date_valid})
     return redirect('signin')
     
 def order_details(request):
     if request.user.is_authenticated:
-
         pk = request.GET.get('pk')
         orders = Order.objects.filter(id = pk)
-
-
-
         return render(request,'order_details.html',{'orders':orders})
-
+    return redirect('signin')
 
 def change_password(request):
 
@@ -1294,15 +1142,39 @@ def change_password(request):
             confirm_password = request.POST.get('confirmPassword')
 
             if check_password(curr_password, request.user.password):
+
+                if len(new_password) < 8:
+                    err = 'password must have more than 8 characters'
+                    return render(request,'change_password.html',{"err":err})
+
+                Numeric = False
+                lower_case = False
+                upper_case = False
+                special_case = False
+                special_symbols = set("!@#$%^&*()_}+-=[]{;:'\"\\|,.<>?/~`")
+                
+                for i in range(len(new_password)):
+                    if new_password[i].isnumeric():
+                        Numeric = True
+                    if new_password[i].islower():
+                        lower_case = True
+                    if new_password[i].isupper():
+                        upper_case = True
+                    if new_password[i] in special_symbols:
+                        special_case = True
+                if not Numeric or not lower_case or not upper_case or not special_case:
+                    err = 'Password must include: Lower Case, Upper Case, and Special character'
+                    return render(request,'change_password.html',{'err':err})
+
                 if new_password == confirm_password:
                     request.user.set_password(new_password)
                     request.user.save()
                     update_session_auth_hash(request, request.user)
                     return redirect('user_profile')
                 err = 'password must be same'
-                return render(request,'change_password',{'err':err})
+                return render(request,'change_password.html',{'err':err})
             err2 = 'current password is wrong'
-            return render(request,'change_password',{'err2':err2})
+            return render(request,'change_password.html',{'err2':err2})
 
         return render(request,'change_password.html')
     return redirect('signin')
@@ -1336,29 +1208,23 @@ def cancel_order(request):
                 obj = WalletHistory(amount=order.price,transaction_type='credit',user=request.user)
                 obj.save()
 
-        
-
         order.date = date.today()
         order.save()
-        
         return JsonResponse({'status': 'ok'})
 
 def admin_coupons(request):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             try:
                 coupon = Coupons.objects.all()
             except Coupons.DoesNotExist:
                 coupon = None
-
             if request.method == 'POST':
                 code = request.POST.get('code')
                 discount_price = request.POST.get('discount_price')
                 starting_date = request.POST.get('starting_date')
                 ending_date = request.POST.get('ending_date')
                 count = request.POST.get('count')
-
 
                 obj = Coupons.objects.create(
                     code = code,
@@ -1369,7 +1235,6 @@ def admin_coupons(request):
                 )
                 obj.save()
                 return redirect('admin_coupons')
-
             return render(request,'admin_coupons.html',{'coupons':coupon})  
         return redirect('signin')
     return redirect('signin')
@@ -1377,9 +1242,7 @@ def admin_coupons(request):
 def admin_coupon_edit(request,pk):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-
             coupon = Coupons.objects.get(id = pk)
-            
             if request.method == 'POST':
                 coupon.code = request.POST.get('code')
                 coupon.discount_price = request.POST.get('discount_price')
@@ -1387,24 +1250,19 @@ def admin_coupon_edit(request,pk):
                 coupon.ending_date = request.POST.get('ending_date')
                 coupon.count = request.POST.get('count')
                 coupon.save()
-
                 return redirect('admin_coupons')
-
             return render(request,'admin_coupon_edit.html',{'coupon':coupon})
         return redirect('signin')
-    
     return redirect('signin')
 
 def admin_coupon_delete(request,pk):
     if request.user.is_authenticated:
         if request.user.is_superuser:
-        
             coupon = Coupons.objects.get(id = pk)
             coupon.delete()
             return redirect('admin_coupons')
         return redirect('signin')
     return redirect('signin')
-
 
 def invoice_pdf(request , pk):
     template_path = 'invoice.html'
@@ -1412,7 +1270,6 @@ def invoice_pdf(request , pk):
     for prod in order.product.all():
         for brands in prod.Brands.all():
             brands = brands.name
-
 
     context = {'order': order,'brand':brands}
    
@@ -1429,7 +1286,6 @@ def invoice_pdf(request , pk):
     if pisa_status.err:
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
-
 
 def export_to_pdf(request):
     start = request.GET.get('start')
@@ -1471,7 +1327,7 @@ def export_to_excel(request):
     for i in order:
         product=""
         for j in i.product.all():
-            product +=j.name
+            product += j.name
 
         ws.append([f"ORD{i.id}",str(i.date),product,i.user.first_name,i.price,i.quantity,i.payment])
 
@@ -1479,28 +1335,24 @@ def export_to_excel(request):
     wb.save(response)
     return response
 
-
 def my_wallet(request):
     if request.user.is_authenticated:
         try:
-            wallet = wallet_user.objects.get(user=request.user)
+            wallet = wallet_user.objects.get(user = request.user)
         except wallet_user.DoesNotExist:
             wallet = None
-        history = WalletHistory.objects.filter(user=request.user).order_by('-date')
+        history = WalletHistory.objects.filter(user = request.user).order_by('-date')
 
         context = {'user': request.user, 'wallet': wallet, 'history': history}
         return render(request, 'my_wallet.html', context)
     return redirect('signin')
 
 def return_order(request,pk):
-
     orders = Order.objects.get(id = pk)
     orders.status = 'Returning'
     orders.save()
-
     return redirect('myorders')
     
-
 def wishlist(request):
     if request.user.is_authenticated:
         return render(request,'404.html')

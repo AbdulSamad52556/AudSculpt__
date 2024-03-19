@@ -75,9 +75,11 @@
 </td>
                     <td class="py-2 px-4 border-b max-w-xs break-words text-center">{% if order.status == 'Cancelled' %}
                                 <p class="text-red-700 font-bold text-sm p-5">{{order.status}}</p> 
-                            {% elif order.status == 'Delivered' %}    
+                            {% elif order.status == 'Out of delivery' %}
+                            <p class="text-yellow-400 font-bold text-sm p-5">{{order.status}}</p>
+                            {% elif order.status == 'Delivered'  %}    
                                 <p class="text-green-700 font-bold text-sm p-5">{{order.status}}</p>
-                            {% elif order.status == 'Ordered' %}
+                            {% elif order.status == 'Ordered'  %}
                                 <p class="text-blue-700 font-bold text-sm p-5">{{order.status}}</p>
                             {% elif order.status == 'Returning' %}
                                 <p class="text-blue-400 font-bold text-sm p-5">{{order.status}}</p>

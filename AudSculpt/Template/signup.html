@@ -78,6 +78,9 @@
                     <form method="post" class="flex flex-col justify-center items-center p-10 gap-5" >
                         {%csrf_token%}
                         <input class="w-3/4 h-14" type="text" placeholder="Firstname" name="firstname" required>
+                        {% if name_err %}
+                        <p class='text-red-600'>{{name_err}}</p>
+                        {% endif %}
                         <input class="w-3/4 h-14" type="text" placeholder="Lastname" name="lastname" required>
                         <input class="w-3/4 h-14" type="text" placeholder="Username" name="username" required>
                         {% if user_err %}
@@ -87,7 +90,7 @@
                         <input class='w-3/4 h-14' type="password" placeholder="password" name="password1" required>
                         <input class='w-3/4 h-14' type="password" placeholder="Confirm password" name="password2" required>
                         {% if pass_err %}
-                            <p>{{pass_err}}</p>
+                            <p class='text-red-600'>{{pass_err}}</p>
                         {% endif %}
                         <button class="log-btn w-3/4 h-14">Create Account</button>
                         <p>OR</p>
