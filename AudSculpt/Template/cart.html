@@ -19,6 +19,23 @@
         display: flex;
         flex-direction: column;
     }
+    .toaster {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 999;
+}
+
+.toaster.show {
+    display: block;
+}
 </style>
 <style>
     @layer utilities {
@@ -321,9 +338,8 @@
 
       
       </div>
-
-
-
+      
+        <div id="toaster" class="toaster"></div>
 
 
 
@@ -338,8 +354,11 @@
                 $('#quant-' + id).val(data.quantity);
                 $('#total').text('₹ ' + data.total);
                 $('#subtotal').text('₹ ' + data.subtotal);
-               
+                if (data.message){
+                  showToaster(data.message);
+                }
             });
+            
         }
 
         function decrementCount(id) {
@@ -347,8 +366,18 @@
                 $('#quant-' + id).val(data.quantity);
                 $('#total').text('₹ ' + data.total);
                 $('#subtotal').text('₹ ' + data.subtotal);
-                
             });
+        }
+        function showToaster(message) {
+            // Display the toaster notification
+            var toaster = document.getElementById('toaster');
+            toaster.textContent = message;
+            toaster.classList.add('show');
+
+            // Hide the notification after a few seconds
+            setTimeout(function() {
+                toaster.classList.remove('show');
+            }, 3000); // 3000 milliseconds = 3 seconds
         }
         function deleteItem(id) {
 

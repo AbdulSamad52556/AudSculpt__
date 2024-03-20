@@ -555,7 +555,11 @@ def increment_count(request):
                         total += variants.price*Cart.quantity
                         quant += Cart.quantity
                 subtotal = total + 40  # Update this according to your logic
-                return JsonResponse({'quantity': obj.quantity, 'total': total, 'quant': quant, 'subtotal': subtotal})
+                if obj.quantity == variant.stock:
+                    message = 'stock limit'
+                else:
+                    message = ''
+                return JsonResponse({'quantity': obj.quantity, 'total': total, 'quant': quant, 'subtotal': subtotal,'message':message})
 
 def decrement_count(request):
     if request.user.is_authenticated:
